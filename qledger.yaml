@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-service
+spec:
+  selector:
+    app: qledger
+  ports:
+    - port: 80
+      targetPort: 7000
+  type: LoadBalancer
+
+apiVersion: v1
+kind: Pod
+metadata:
+   name: qledger
+spec:
+   containers:
+   - name: qledger
+     image: bprofitt/qledger:latest
+     ports:
+     - containerPort: 7000

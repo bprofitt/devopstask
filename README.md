@@ -145,7 +145,7 @@ Content-Length: 80
 ```
 
 ```
-POST /v1/accounts HTTP/1.1
+POST /v1/transactions HTTP/1.1
 Authorization: 1234567890
 Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
 Accept: application/json

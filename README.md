@@ -56,7 +56,9 @@ I assume these prerequisites do not have to be described in particularly fine de
 
 ## Deployment
 
-Sine this is a local development setup, there are some initial steps that need to be done, such as exporting the neccesary keys and aws profile for terraform to work:
+Sine this is a local development setup, there are some initial steps that need to be done, such as exporting the neccesary keys and aws profile for terraform to work.
+
+**Note: all text in blocks are commands to be executed in a *nix shell**
 
 
     export AWS_PROFILE=<PLEASE CHANGE TO AWS PROFILE MENTIONED IN PREREQUISIES>
@@ -203,7 +205,7 @@ Content-Length: 141
   - Integrate prometheus/grafana for application level monitoring and visibility
 
 
-## Some final thoughtss
+## Some final thoughts
 
 There are many ways to create a kubernetes cluster and its underlying infrastructure, the tooling used here was a choice out of many, however the advantages are clear from the choices made as well as to the split between infrastructure and the application layers.
 

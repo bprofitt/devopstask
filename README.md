@@ -4,35 +4,41 @@ The task requires a few main points to be addressed:
  - You need to provision an app connecting to a sql database.
  - The deployment needs to be highly available (HA), multiple zones or regions
  - Pick an application that depends on a database to deploy, here is a suggestion:
-    - https://github.com/RealImage/QLedger
+   - https://github.com/RealImage/QLedger
 
 ## Design considerations
 
 Since this is a local task I could not use a full DevOps strategy, the shortcomings I will discuss later in the document.
-To address the requirements set out as part of the task, I designed the setup as follows following industry best-practices by splitting the infrastructure and application parts and utilizing IAC tooling:
+To address the requirements set out as part of the task, I designed the setup as follows following industry best-practices by splitting the infrastructure and application parts and utilizing IAC tooling bz leveraging Terraform and AWS EKS.
 
 ### Infrastructure
-A AWS VPC compromising of 3 Availibility Zones (AZ), application and database subnets in each AZ. A multi-az AWS managed RDS (Postgress) is also provisioned across the 3 AZs for more resilience in case of failure.
+
+A AWS VPC compromising of 3 Availibility Zones (AZ), application and database subnets in each AZ. A multi-az AWS managed RDS (Postgress) is also provisioned across the 3 AZs for more resilience in case of failure. 
+Terraform is used to create and maintain changes made to the state of the infrastructure via a remote state mechanism utilizing S3 - this will allow the solution to be ported to a CI/CD pipeline more easily and also allow multiple colleagues to work on the infrastructure - there is a caveat here as the solution needs to be built out to utilize a DynamoDB table for statelocks - this is already present in the provider.tf file but is commented out for now.
 
 ### Application
-The task requires an application (QLedger) to connect to a database, so I created Dockerhub image of QLedger in order to customize a few things for ease of deplyment as well as security. The application is deplozed across the multiple AZs and also ssits behind a AWS NLB in order to provide high availibility, proper load balancing across the instances as well as future integration into a DNS zone to further abstract the API functionality.
+
+The task requires an application (QLedger) to connect to a database, so I created Dockerhub image of QLedger in order to customize a few things for ease of deplyment as well as security. The application is deployed across the multiple AZs and also ssits behind a AWS NLB in order to provide high availibility, proper load balancing across the instances as well as future integration into a DNS zone to further abstract the API functionality.
+Kubernetes is used to deploy the application as well as the loadbalancer to the AWS EKS cluster. AWS EKS was chosen as this takes awaz the need to dive under the hoood to setup, maintain and update the control plane and is also certified kubernetes certified, allowing all upstream kubernetes applications to run on it.
+I also forked QLedger in order to utilize [aws-env](https://github.com/Droplr/aws-env) to securely handle the database credentials created dynamically by terraform, as well as being able to create a DockerHub image that can be versioned controlled and available. I have also created an additional IAM policy via terraform to allow the kubernetes nodes to access AWS SSM and AWS KMS services in order for this crednetial sharing to work.
+
 
 ## Technical prerequisites:
-    Terraform 0.12.24
-    AWS cli: aws-cli/1.17.17 Python/3.8.6 Linux/5.9.8-100.fc32.x86_64 botocore/1.14.17
-    Kubectl client verson 1.18.2
-    Jq 1.6
-
-    This project was developed on a Fedora 32 machine running zsh
+- Terraform 0.12.24
+- AWS cli: aws-cli/1.17.17 Python/3.8.6 Linux/5.9.8-100.fc32.x86_64 botocore/1.14.17
+- Kubectl client verson 1.18.2
+- Jq 1.6
+- Git 2.26.2
+- This project was developed on a Fedora 32 machine running zsh
 
     
 -----------------------------------------------------------------
 
 ## Prerequisites:
 
-I assume these do not have to be described in particular detail, as these requirements are documented well in AWS documentation, I will provide references should this be required.
+I assume these prerequisites do not have to be described in particularly fine detail, as the steps are well documented in the AWS documentation, I will provide references should this be required.
 
-- AWS user has been setup with sufficient access:
+- AWS user has been setup with sufficient access to:
   - EC2
   - EKS
   - S3
@@ -47,34 +53,45 @@ I assume these do not have to be described in particular detail, as these requir
 
 -----------------------------------------------------------------
 
-Sine this is a local development setup, there are some initial steps that need to be done:
+## Deployment
 
-BASH:
-export AWS_PROFILE=bartonpriv
-export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
-export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
-BASH:
-
-Now to properly simulate a production like process, lets start by creating a terraform workspace to seperate the stages and keep things clean:
-
-BASH:
-terraform init
-
-terraform workspace new devstage
-
-terraform apply -auto-approve
-
-aws eks --region $(terraform output region) update-kubeconfig --name $(terraform output cluster_name)
-
-kubectl apply -f qledgerapp.yaml
-
-kubectl apply -f qledgerlb.yaml
+Sine this is a local development setup, there are some initial steps that need to be done, such as exporting the neccesary keys and aws profile for terraform to work:
 
 
-BASH:
+    export AWS_PROFILE=bartonpriv
 
+    export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
+    
+    export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+
+
+Now to properly simulate a production like process, lets start by creating a terraform workspace to seperate the stages and keep things clean.
+Firstly setup the infrastructure:
+
+    git clone https://github.com/bprofitt/devopstask.git
+
+    terraform init
+
+    terraform workspace new devstage
+
+    terraform apply -auto-approve
+
+This process will take around 10 minutes to create the infrastructure, most of the time is spent creating the elastic kubernetes service and the multi-az database service.
+
+Once the infrastructure is ready, we can continue to deploy our application:
+
+    aws eks --region $(terraform output region) update-kubeconfig --name $(terraform output cluster_name)
+
+    kubectl apply -f qledgerapp.yaml
+
+    kubectl apply -f qledgerlb.yaml
+
+    kubectl get services
+
+The last command will return the loadbalancer externallz resolvable DNS name that we can use to interact with the application.
 -----------------------------------------------------------------
-Testing the solution:
+
+## Testing the solution:
 
 
 POST /v1/accounts HTTP/1.1
@@ -153,6 +170,7 @@ Content-Length: 141
 [{"id":"abcd1234","timestamp":"2020-11-20T09:52:58.998Z","data":{},"lines":[{"account":"alice","delta":-100},{"account":"bob","delta":100}]}]
 
 -----------------------------------------------------------------
+
 # Future Improvements:
 
  - consider moving this to a bash script - compatabilitz for other OS? Also point out improvements 

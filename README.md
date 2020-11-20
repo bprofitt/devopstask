@@ -9,17 +9,16 @@ The task requires a few main points to be addressed:
 ## Design considerations
 
 Since this is a local task I could not use a full DevOps strategy, the shortcomings I will discuss later in the document.
-To address the requirements set out as part of the task, I designed the setup as follows following industry best-practices:
+To address the requirements set out as part of the task, I designed the setup as follows following industry best-practices by splitting the infrastructure and application parts and utilizing IAC tooling:
 
 ### Infrastructure
 A AWS VPC compromising of 3 Availibility Zones (AZ), application and database subnets in each AZ. A multi-az AWS managed RDS (Postgress) is also provisioned across the 3 AZs for more resilience in case of failure.
 
 ### Application
-
+The task requires an application (QLedger) to connect to a database, so I created Dockerhub image of QLedger in order to customize a few things for ease of deplyment as well as security. The application is deplozed across the multiple AZs and also ssits behind a AWS NLB in order to provide high availibility, proper load balancing across the instances as well as future integration into a DNS zone to further abstract the API functionality.
 
 ## Technical prerequisites:
     Terraform 0.12.24
-    Kops 1.18.2
     AWS cli: aws-cli/1.17.17 Python/3.8.6 Linux/5.9.8-100.fc32.x86_64 botocore/1.14.17
     Kubectl client verson 1.18.2
     Jq 1.6
@@ -29,25 +28,26 @@ A AWS VPC compromising of 3 Availibility Zones (AZ), application and database su
     
 -----------------------------------------------------------------
 
-Prerequisites: I assume these do not have to be described in particular detail, as these requirements are documented well in AWS documentation, I will provide references should this be required.
+## Prerequisites:
 
-    AWS user has been setup with sufficient access:
-        EC2
-        EKS
-        S3
-        VPC
-        Route53
-        RDS
-        SSM Parameter store
-        KMS
+I assume these do not have to be described in particular detail, as these requirements are documented well in AWS documentation, I will provide references should this be required.
 
-    This users access and secret keys have been configured as a profile in the aws cli (https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html)
-    A S3 bucket needs to be created to store terraform and kops output - please set it to private, i.e. no public access
+- AWS user has been setup with sufficient access:
+  - EC2
+  - EKS
+  - S3
+  - VPC
+  - Route53
+  - RDS
+  - SSM Parameter store
+  - KMS
+
+- This users access and secret keys have been configured as a profile in the aws cli (https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html)
+- A S3 bucket needs to be created to store the terraform state - please set it to private, i.e. no public access
 
 -----------------------------------------------------------------
 
-Sine this is a local development setup, there are some initial steps that need to be done - consider moving this to a bash script - compatabilitz for other OS? Also point out improvements 
-for future = security concerns for credentials, limiting IAM user using roles and specific access, CI/CD pipeline for reproducibility and control, along with additional secrets management
+Sine this is a local development setup, there are some initial steps that need to be done:
 
 BASH:
 export AWS_PROFILE=bartonpriv
@@ -153,5 +153,7 @@ Content-Length: 141
 [{"id":"abcd1234","timestamp":"2020-11-20T09:52:58.998Z","data":{},"lines":[{"account":"alice","delta":-100},{"account":"bob","delta":100}]}]
 
 -----------------------------------------------------------------
-Improvements:
+# Future Improvements:
 
+ - consider moving this to a bash script - compatabilitz for other OS? Also point out improvements 
+for future = security concerns for credentials, limiting IAM user using roles and specific access, CI/CD pipeline for reproducibility and control, along with additional secrets management

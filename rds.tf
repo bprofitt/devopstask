@@ -37,10 +37,7 @@ resource "aws_db_instance" "myTestDB" {
 resource "aws_ssm_parameter" "mytest-db-connection-string" {
   name        = "/dev/DATABASE_URL"
   description = "The database connectionstring"
-  #type        = "SecureString"
-  type        = "String"
-  #value       = "Server=${aws_db_instance.myTestDB.address};Database=${aws_db_instance.myTestDB.name};UserId=myTestDBUser;Password=${random_string.postgres_password.result}"
-  # DATABASE_URL=postgres://USERNAME:PASSWORD@HOST:PORT/DB_NAME
+  type        = "SecureString"
   value       = "postgres://myTestDBUser:${random_string.postgres_password.result}@${aws_db_instance.myTestDB.address}:7000/${aws_db_instance.myTestDB.name}"
   tags = {
     Name        = "mytest-db-connection-string"

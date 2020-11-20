@@ -62,27 +62,30 @@ I assume these prerequisites do not have to be described in particularly fine de
 Sine this is a local development setup, there are some initial steps that need to be done, such as exporting the neccesary keys and aws profile for terraform to work:
 
 
-    export AWS_PROFILE=bartonpriv
+    export AWS_PROFILE=<PLEASE CHANGE TO AWS PROFILE MENTIONED IN PREREQUISIES>
 
     export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
     
     export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
 
 
-Now to properly simulate a production like process, lets start by creating a terraform workspace to seperate the stages and keep things clean.
+First get the code from github and change the S3 bucket used for the terraform statefile:
 
-Please edit the the provider. and replace the value "bprofitt" with the S3 bucket name that was created as part of the prerequisites:
+    git clone https://github.com/bprofitt/devopstask.git
+
+    cd devopstask/
+
+Please edit the *provider.tf* file and replace the value "bprofitt" with the S3 bucket name that was created as part of the prerequisites:
 
     bucket         = "bprofitt"
 
-
-Now we can setup the infrastructure:
-
-    git clone https://github.com/bprofitt/devopstask.git
+We can now download the required terraform modules as well as to properly simulate a production like process, we also create a terraform workspace to seperate the stages and keep things clean.
 
     terraform init
 
     terraform workspace new devstage
+
+Instantiating the infrastructure:
 
     terraform apply -auto-approve
 
@@ -103,7 +106,13 @@ The last command will return the loadbalancer externallz resolvable DNS name tha
 
 ## Testing the solution:
 
+As this is a DevOps task not destined to be immediately production ready, I have created a simple authorization code to use when interacting with the QLedger API.
 
+    1234567890
+
+The following examples can be used to test the functionality of the clustered application - there are multiple tools that can be used to send the requests, for a quick check [REQBIN](https://reqbin.com/req/yjok4snr/post-html-form-example) can easily used to test the functionality shown below:
+
+```
 POST /v1/accounts HTTP/1.1
 Authorization: 1234567890
 Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
@@ -118,8 +127,8 @@ Content-Length: 80
     "date": "2017-01-01"
   }
 }
-
-
+```
+```
 POST /v1/accounts HTTP/1.1
 Authorization: 1234567890
 Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
@@ -134,9 +143,9 @@ Content-Length: 80
     "date": "2017-01-01"
   }
 }
+```
 
-working:
-
+```
 POST /v1/accounts HTTP/1.1
 Authorization: 1234567890
 Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
@@ -157,11 +166,10 @@ Content-Length: 154
     }
   ]
 }
+```
 
-
-
-
-POST //v1/transactions/_search HTTP/1.1
+```
+POST /v1/transactions/_search HTTP/1.1
 Authorization: 1234567890
 Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
 Accept: application/json
@@ -178,10 +186,31 @@ Date: Fri, 20 Nov 2020 09:53:51 GMT
 Content-Length: 141
 
 [{"id":"abcd1234","timestamp":"2020-11-20T09:52:58.998Z","data":{},"lines":[{"account":"alice","delta":-100},{"account":"bob","delta":100}]}]
+```
 
 -----------------------------------------------------------------
 
 # Future Improvements:
 
- - consider moving this to a bash script - compatabilitz for other OS? Also point out improvements 
-for future = security concerns for credentials, limiting IAM user using roles and specific access, CI/CD pipeline for reproducibility and control, along with additional secrets management
+- Use a dedicated IAM user
+- Use assume role functionality and more restrictive IAM policies to limit the blast radius should the dedicated account become compromised
+- Port the project to a proper CI/CD pipeline
+  - This will allow for repeatability with regards to deployments and seperation of environments
+  - Minimizing manual error(s)
+  - Increased security for credentials
+  - Bettter SDLC process
+  - Automated testing
+- Create stronger authentication token for the service, stored in SSM parameter store and distributed securly to calling applications
+- Change the subnets to be private and introduce a hardened bastion host for access to the infrastructure
+- If this is to be a public facing service, add kubernetes certificate manager for HTTPS encrypted traffic 
+- Increase monitoring - as this is the only way to have visibility on the health and bottlenecks of a platform 
+  - Integrate kubernetes metric and dashboard applications for cluster level monitoring and visibility
+  - Integrate prometheus/grafana for application level monitoring and visibility
+
+## Some final thoughtss
+
+There are many ways to create a kubernetes cluster and its underlying infrastructure, the tooling used here was a choice out of many, however the advantages are clear from the choices made as well as to the split between infrastructure and the application layers.
+
+Terraform works best as infrastructure-as-code tooliing by creating and maintaining the state of the infrastructure, the remote state functionality allows different people/teams to work on and maintain the infrastructure and does not interfere with the application operations part, though there are dependencies.
+
+Kuberetes alls us to also abstract the application layer away from a dependency to the infrastructure, we can scale the infrasstructure and the kubernetes control plane will grow and shrink with it as well as maintaining the optimal number of instances of the application runnning as well as also being to scale the number of instances of the application independently of the underlying infrastructure.

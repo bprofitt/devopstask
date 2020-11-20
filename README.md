@@ -56,7 +56,7 @@ I assume these prerequisites do not have to be described in particularly fine de
 
 ## Deployment
 
-Since this is a local development setup, there are some initial steps that need to be done, such as exporting the neccesary keys and aws profile for terraform to work.
+Since this is a local development setup, there are some initial steps that need to be done, such as exporting the necessary keys and aws profile for terraform to work.
 
 **Note: all text in blocks are commands to be executed in a \*nix shell**
 
@@ -106,7 +106,7 @@ The last command will return the loadbalancer's externally resolvable DNS name t
 *Once done testing and verifying the functionality, please remember to destroy the stack, otherwise costs will be incurred!*
 
     kubectl delete all --all
-    
+
     terraform destroy -auto-approve
 
 ## Testing the solution:

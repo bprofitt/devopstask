@@ -103,6 +103,10 @@ Once the infrastructure is ready, we can continue to deploy our application:
 The last command will return the loadbalancer's externally resolvable DNS name that we can use to interact with the application. This takes some time to return a proper value, so please allow a few minutes for DNS propagation and AWS to finish.
 
 
+*Once done testing and verifying the functionality, please remember to destroy the stack, otherwise costs will be incurred!*
+
+    terraform destroy -auto-approve
+
 ## Testing the solution:
 
 As this is a DevOps task not destined to be immediately production ready, I have created a simple authorization code to use when interacting with the QLedger API.

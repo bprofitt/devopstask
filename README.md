@@ -1,4 +1,23 @@
-Technical prerequisites:
+# Technical takehome DevOps task
+
+The task requires a few main points to be addressed:
+ - You need to provision an app connecting to a sql database.
+ - The deployment needs to be highly available (HA), multiple zones or regions
+ - Pick an application that depends on a database to deploy, here is a suggestion:
+    - https://github.com/RealImage/QLedger
+
+## Design considerations
+
+Since this is a local task I could not use a full DevOps strategy, the shortcomings I will discuss later in the document.
+To address the requirements set out as part of the task, I designed the setup as follows following industry best-practices:
+
+### Infrastructure
+A AWS VPC compromising of 3 Availibility Zones (AZ), application and database subnets in each AZ. A multi-az AWS managed RDS (Postgress) is also provisioned across the 3 AZs for more resilience in case of failure.
+
+### Application
+
+
+## Technical prerequisites:
     Terraform 0.12.24
     Kops 1.18.2
     AWS cli: aws-cli/1.17.17 Python/3.8.6 Linux/5.9.8-100.fc32.x86_64 botocore/1.14.17

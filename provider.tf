@@ -4,7 +4,7 @@ provider "aws" {
 terraform {
 	required_version = ">= 0.12.14"
 	backend "s3" {
-	  bucket         = "bprofitt"
+	  bucket         = var.s3_bucket
 	  key            = "eksstate/terraformkoho.state"
 	  region         = "us-east-1"
 	  # Following settings to allow for statelock when multiple people work on the same project / TBD if needed for this task

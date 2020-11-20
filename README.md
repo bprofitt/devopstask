@@ -101,7 +101,8 @@ Once the infrastructure is ready, we can continue to deploy our application:
 
     kubectl get services
 
-The last command will return the loadbalancer externallz resolvable DNS name that we can use to interact with the application.
+The last command will return the loadbalancer's  externally resolvable DNS name that we can use to interact with the application.
+
 -----------------------------------------------------------------
 
 ## Testing the solution:

@@ -14,7 +14,7 @@ To address the requirements set out as part of the task, I designed the setup as
 
 ### Infrastructure
 
-A AWS VPC compromising of 3 Availibility Zones (AZ), application and database subnets in each AZ. A multi-az AWS managed RDS (Postgress) is also provisioned across the 3 AZs for more resilience in case of failure. 
+An AWS VPC compromising of 3 Availibility Zones (AZ or az), application and database subnets in each AZ. A multi-az AWS managed RDS (Postgress) is also provisioned as a mulit-az service across the 3 AZs for more resilience in case of failure. 
 
 Terraform is used to create and maintain changes made to the state of the infrastructure via a remote state mechanism utilizing S3 - this will allow the solution to be ported to a CI/CD pipeline more easily and also allow multiple colleagues to work on the infrastructure - there is a caveat here as the solution needs to be built out to utilize a DynamoDB table for statelocks - this is already present in the provider.tf file but is commented out for now.
 
@@ -35,8 +35,6 @@ I also forked QLedger ([forked QLedger](https://github.com/bprofitt/QLedger)) in
 - Git 2.26.2
 - This project was developed on a Fedora 32 machine running zsh
 
-    
------------------------------------------------------------------
 
 ## Prerequisites:
 
@@ -55,7 +53,6 @@ I assume these prerequisites do not have to be described in particularly fine de
 - This users access and secret keys have been configured as a profile in the aws cli (https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html)
 - A S3 bucket needs to be created to store the terraform state - please set it to private, i.e. no public access
 
------------------------------------------------------------------
 
 ## Deployment
 
@@ -103,7 +100,6 @@ Once the infrastructure is ready, we can continue to deploy our application:
 
 The last command will return the loadbalancer's  externally resolvable DNS name that we can use to interact with the application.
 
------------------------------------------------------------------
 
 ## Testing the solution:
 
@@ -189,8 +185,6 @@ Content-Length: 141
 [{"id":"abcd1234","timestamp":"2020-11-20T09:52:58.998Z","data":{},"lines":[{"account":"alice","delta":-100},{"account":"bob","delta":100}]}]
 ```
 
------------------------------------------------------------------
-
 # Future Improvements:
 
 - Use a dedicated IAM user
@@ -207,6 +201,7 @@ Content-Length: 141
 - Increase monitoring - as this is the only way to have visibility on the health and bottlenecks of a platform 
   - Integrate kubernetes metric and dashboard applications for cluster level monitoring and visibility
   - Integrate prometheus/grafana for application level monitoring and visibility
+
 
 ## Some final thoughtss
 

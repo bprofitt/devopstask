@@ -105,6 +105,8 @@ The last command will return the loadbalancer's externally resolvable DNS name t
 
 *Once done testing and verifying the functionality, please remember to destroy the stack, otherwise costs will be incurred!*
 
+    kubectl delete all --all
+    
     terraform destroy -auto-approve
 
 ## Testing the solution:

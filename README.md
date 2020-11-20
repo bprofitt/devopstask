@@ -47,14 +47,15 @@ terraform apply -auto-approve
 
 aws eks --region $(terraform output region) update-kubeconfig --name $(terraform output cluster_name)
 
-kubectl apply -f qledgerv2.yaml
+kubectl apply -f qledgerapp.yaml
 
+kubectl apply -f qledgerlb.yaml
 
 
 BASH:
 
-
-tests:
+-----------------------------------------------------------------
+Testing the solution:
 
 
 POST /v1/accounts HTTP/1.1
@@ -131,3 +132,7 @@ Date: Fri, 20 Nov 2020 09:53:51 GMT
 Content-Length: 141
 
 [{"id":"abcd1234","timestamp":"2020-11-20T09:52:58.998Z","data":{},"lines":[{"account":"alice","delta":-100},{"account":"bob","delta":100}]}]
+
+-----------------------------------------------------------------
+Improvements:
+

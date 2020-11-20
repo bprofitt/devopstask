@@ -52,3 +52,82 @@ kubectl apply -f qledgerv2.yaml
 
 
 BASH:
+
+
+tests:
+
+
+POST /v1/accounts HTTP/1.1
+Authorization: 1234567890
+Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
+Accept: application/json
+Content-Type: application/json
+Content-Length: 80
+
+{
+  "id": "bob",
+  "data": {
+    "product": "qw",
+    "date": "2017-01-01"
+  }
+}
+
+
+POST /v1/accounts HTTP/1.1
+Authorization: 1234567890
+Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
+Accept: application/json
+Content-Type: application/json
+Content-Length: 80
+
+{
+  "id": "alice",
+  "data": {
+    "product": "qw",
+    "date": "2017-01-01"
+  }
+}
+
+working:
+
+POST /v1/accounts HTTP/1.1
+Authorization: 1234567890
+Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
+Accept: application/json
+Content-Type: application/json
+Content-Length: 154
+
+{
+  "id": "abcd1234",
+  "lines": [
+    {
+      "account": "alice",
+      "delta": -100
+    },
+    {
+      "account": "bob",
+      "delta": 100
+    }
+  ]
+}
+
+
+
+
+POST //v1/transactions/_search HTTP/1.1
+Authorization: 1234567890
+Host: ad424889b6fd14afaa011df83c1bd7ad-ba13ed59f6836365.elb.eu-west-1.amazonaws.com
+Accept: application/json
+Content-Type: application/json
+Content-Length: 22
+
+{
+  "id": "abcd1234"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Fri, 20 Nov 2020 09:53:51 GMT
+Content-Length: 141
+
+[{"id":"abcd1234","timestamp":"2020-11-20T09:52:58.998Z","data":{},"lines":[{"account":"alice","delta":-100},{"account":"bob","delta":100}]}]

@@ -1,0 +1,21 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: qledger
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qledger
+
+  template:
+    metadata:
+      labels:
+        app: qledger
+    spec:
+      containers:
+      - name: qledger
+        image: bprofitt/qledger:latest
+        ports:
+        - containerPort: 7000

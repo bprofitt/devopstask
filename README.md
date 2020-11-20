@@ -58,7 +58,7 @@ I assume these prerequisites do not have to be described in particularly fine de
 
 Sine this is a local development setup, there are some initial steps that need to be done, such as exporting the neccesary keys and aws profile for terraform to work.
 
-**Note: all text in blocks are commands to be executed in a *nix shell**
+**Note: all text in blocks are commands to be executed in a \*nix shell**
 
 
     export AWS_PROFILE=<PLEASE CHANGE TO AWS PROFILE MENTIONED IN PREREQUISIES>
